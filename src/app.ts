@@ -16,12 +16,14 @@ const app = express()
 
 app.get('/token/create', async function (req, res) {
     const token = await githubAuth.code.getToken(req.originalUrl)
+    res.setHeader('Access-Control-Allow-Origin', process.env.WEB_SITE_URL)
     return res.json(token.data)
 })
 
 app.post('/token/refresh', async function (req, res) {
     const old_token = new ClientOAuth2.Token(githubAuth, req.body)
     const new_token = await old_token.refresh()
+    res.setHeader('Access-Control-Allow-Origin', process.env.WEB_SITE_URL)
     return res.json(new_token.data)
 })
 
