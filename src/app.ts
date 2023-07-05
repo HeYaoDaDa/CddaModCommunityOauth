@@ -13,10 +13,19 @@ const githubAuth = new ClientOAuth2({
 })
 const app = express()
 
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*')
+    res.header('Access-Control-Allow-Headers', 'Authorization,X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Request-Method')
+    res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PATCH, PUT, DELETE')
+    res.header('Allow', 'GET, POST, PATCH, OPTIONS, PUT, DELETE')
+    next();
+});
+
+app.use(express.json())
+
 app.get('/token/create', async function (req, res) {
     console.log('/token/create trigger')
     const token = await githubAuth.code.getToken(req.originalUrl)
-    res.setHeader('Access-Control-Allow-Origin', process.env.WEB_SITE_URL)
     return res.json(token.data)
 })
 
@@ -24,7 +33,6 @@ app.post('/token/refresh', async function (req, res) {
     console.log('/token/refresh trigger')
     const old_token = new ClientOAuth2.Token(githubAuth, req.body)
     const new_token = await old_token.refresh()
-    res.setHeader('Access-Control-Allow-Origin', process.env.WEB_SITE_URL)
     return res.json(new_token.data)
 })
 
