@@ -36,4 +36,4 @@ app.post('/token/refresh', async function (req, res) {
     return res.json(new_token.data)
 })
 
-app.listen(9999)
+app.listen(9999, () => console.log("listen start..."))
