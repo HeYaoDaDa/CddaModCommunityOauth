@@ -1,3 +1,4 @@
+import axios from 'axios'
 import ClientOAuth2 from 'client-oauth2'
 import dotenv from 'dotenv'
 import express from 'express'
@@ -34,6 +35,25 @@ app.post('/token/refresh', async function (req, res) {
     const old_token = new ClientOAuth2.Token(githubAuth, req.body)
     const new_token = await old_token.refresh()
     return res.json(new_token.data)
+})
+
+app.get('/device/code', async function (req, res) {
+    console.log('/device/code trigger')
+    const response = await axios.post(`https://github.com/login/device/code?client_id=${process.env.CLIENT_ID}`)
+    const data = new URLSearchParams(response.data)
+    const body = {}
+    data.forEach((v, k) => body[k] = v)
+    return res.json(body)
+})
+
+app.get('/device/token', async function (req, res) {
+    const deviceCode = req.query.device_code as string
+    console.log('/device/token trigger code is ', deviceCode)
+    const response = await axios.post(`https://github.com/login/oauth/access_token?client_id=${process.env.CLIENT_ID}&grant_type=urn:ietf:params:oauth:grant-type:device_code&device_code=${deviceCode}`)
+    const data = new URLSearchParams(response.data)
+    const body = {}
+    data.forEach((v, k) => body[k] = v)
+    return res.json(body)
 })
 
 app.listen(9999, () => console.log("listen start..."))
